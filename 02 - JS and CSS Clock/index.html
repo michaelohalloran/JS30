@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JS + CSS Clock</title>
+</head>
+<body>
+
+  
+    <div class="clock">
+      <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand min-hand"></div>
+        <div class="hand second-hand"></div>
+      </div>
+    </div>
+    <br/>
+
+    <div class="time-display"></div>
+
+
+  <style>
+    html {
+      background:#018DED url(http://unsplash.it/1500/1000?image=881&blur=50);
+      background-size:cover;
+      font-family:'helvetica neue';
+      text-align: center;
+      font-size: 10px;
+    }
+
+    body {
+      margin: 0;
+      font-size: 2rem;
+      display:flex;
+      flex:1;
+      min-height: 100vh;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .time-display {
+      width: 50vw;
+      height: 15vh;
+      background: #191515;
+      color: #f1c4c4;
+      font-size: 4.5rem;
+      margin-right: auto;
+      margin-left: auto;
+      margin-bottom: 5%;
+      /* to center text: */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clock {
+      width: 30rem;
+      height: 30rem;
+      border:20px solid white;
+      border-radius:50%;
+      margin:50px auto;
+      position: relative;
+      padding:2rem;
+      box-shadow:
+        0 0 0 4px rgba(0,0,0,0.1),
+        inset 0 0 0 3px #EFEFEF,
+        inset 0 0 10px black,
+        0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .clock-face {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform: translateY(-3px); /* account for the height of the clock hands */
+    }
+
+    .hand {
+      width:50%;
+      height:6px;
+      background:black;
+      position: absolute;
+      top:50%;
+      transform-origin: 100%;
+      transform: rotate(90deg);
+      transition: all 0.05s;
+      transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+    }
+
+  </style>
+
+  <script>
+
+    const secondHand = document.querySelector('.second-hand');
+    const minuteHand = document.querySelector('.min-hand');
+    const hourHand = document.querySelector('.hour-hand');
+    const timeDisplay = document.querySelector('.time-display');
+
+    const formatHours = (hours) => {
+      if(hours >=13) {
+        // console.log(`hours are ${hours}`);
+        hours = hours - 12;
+        return hours;
+        // console.log(`hours are now ${hours}`);
+
+      }
+    }
+
+    const setDate = () => {
+      const now = new Date();
+      //get seconds of current time
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = formatHours(now.getHours());
+
+      //prevent skip at top of the minute
+      if(seconds == 0) {
+        [secondHand, minuteHand, hourHand].forEach((el)=> {
+          el.style.transitionDuration = '0s'
+        });
+      }
+      //60 seconds  = 360 degrees, 30 = 180 deg, etc.:
+      const secondsDegrees = ((seconds/60) * 360) + 90;
+      const minutesDegrees = ((minutes/60) * 360) + 90;
+      const hoursDegrees = ((hours/12) * 360) + 90;
+
+
+      secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
+      // const minutesDegrees = ((minutes / 60) * 360) + ((seconds/60)*6) + 90;
+      minuteHand.style.transform = `rotate(${minutesDegrees}deg)`;
+      // const hoursDegrees = ((hours / 12) * 360) + ((minutes/60)*30) + 90;
+      hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
+
+      // console.log(`time is ${hours}:${minutes}:${seconds < 10 ? '0' + seconds : seconds}`);
+      showTime(hours, minutes, seconds);
+    }
+
+
+  const formatTimeDisplay = (timeUnit) => {
+    // console.log('in formatSM, timeUnit is ', timeUnit);
+      if (timeUnit < 10) {
+        // console.log('less than 10');
+        //append a 0
+        timeUnit = '0' + timeUnit;
+        // console.log('timeUnit is ', timeUnit);
+        return timeUnit;
+      } else {
+        return timeUnit;
+      }
+    }
+
+    const showTime = (hours, minutes, seconds) => {
+      // console.log(`in showTime, time is `, time);
+      //if time < 10, append 0
+      hours = formatTimeDisplay(hours);
+      minutes = formatTimeDisplay(minutes);
+      // console.log('in showTime, minutes are ', minutes);
+      seconds = formatTimeDisplay(seconds);
+      // console.log('in showTime, seconds are ', seconds);
+
+      timeDisplay.innerHTML = `${hours}:${minutes}:${seconds}`;
+      // time < 10 ? timeDisplay.innerHTML = `0${time}` : timeDisplay.innerHTML = time;
+    }
+
+    setInterval(setDate, 1000);
+    setDate();
+
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
