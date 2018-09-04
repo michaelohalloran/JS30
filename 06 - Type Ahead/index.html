@@ -19,12 +19,17 @@ const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb
 
 const cities = [];
 
-const searchBox = document.querySelector('input');
-// console.log(searchBox);
+const searchBox = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
 
-searchBox.addEventListener('change', fetchCityData);
+// searchBox.addEventListener('input', fetchCityData);
+searchBox.addEventListener('change', showMatches);
+searchBox.addEventListener('keyup', showMatches);
+
+
 
 function fetchCityData() {
+  // console.log('hit fetchCityData function');
   fetch(endpoint)
     .then(res=> {
       // console.log('fetch response is: ')
@@ -33,16 +38,50 @@ function fetchCityData() {
       // console.log(res.json());
       return res.json();
     })
-    .then(arr=> {
-      // console.log('arr is: ');
-      // console.log(arr[0].city);
-      for(let city of arr) {
-        cities.push(city);
-      }
+    .then(cityArray=> {
+      console.log('cities array is: ');
+      // console.log(cityArray[0].city);
+      // for(let city of cityArray) {
+      //   cities.push(city);
+      // }
+      cities.push(...cityArray);
       console.log('cities: ');
       console.log(cities);
-      return cities;
+      // return cities;
     });
+}
+
+fetchCityData();
+
+function findMatches(wordToMatch, cities) {
+  //return items in cities array which match word we're typing into the input
+  return cities.filter(place=> {
+    //does city match what was searched?
+    const regex = new RegExp(wordToMatch, 'gi');
+    return place.city.match(regex) || place.state.match(regex);
+  });
+}
+
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function showMatches() {
+  // console.log(this.value);
+  const matchArray = findMatches(this.value, cities);
+  // console.log(matchArray);
+  const html = matchArray.map(place=> {
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`)
+    const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`)
+    return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${numberWithCommas(place.population)}</span>
+      </li>
+    `
+  }).join('');
+  suggestions.innerHTML = html;
 }
 
 
